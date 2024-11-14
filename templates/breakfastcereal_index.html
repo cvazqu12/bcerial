@@ -1,0 +1,62 @@
+<!--Claude helped me with some of this.--> 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Breakfast Cereal</title>
+</head>
+<body>
+    <h2>Breakfast Cereal</h2>
+    <button id="connect-button">Connect Serial Port</button>
+    <p>Connection Status: <span id="connection-status">Not Connected</span></p>
+    <h3>Last Command Sent:</h3>
+    <div id="command-display">No command sent yet</div>
+    <h3>Response:</h3>
+    <div id="received-data">No response yet</div>
+
+    <script>
+        let port;
+        let reader;
+        const decoder = new TextDecoder();
+        
+        async function connectSerial() {
+            try {
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 115200 });
+                
+                document.getElementById('connection-status').textContent = 'Connected';
+                document.getElementById('connect-button').disabled = true;
+                
+                while (port.readable) {
+                    reader = port.readable.getReader();
+                    
+                    try {
+                        while (true) {
+                            const { value, done } = await reader.read();
+                            if (done) break;
+                            
+                            const decoded = decoder.decode(value);
+                            try {
+                                const data = JSON.parse(decoded);
+                                document.getElementById('command-display').textContent = data.command;
+                                document.getElementById('received-data').textContent = 
+                                    `Response received at ${new Date().toLocaleTimeString()}`;
+                            } catch (e) {
+                                document.getElementById('received-data').textContent = decoded;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error reading data:', error);
+                    } finally {
+                        reader.releaseLock();
+                    }
+                }
+            } catch (error) {
+                console.error('Error connecting:', error);
+                document.getElementById('connection-status').textContent = 'Connection Failed';
+            }
+        }
+
+        document.getElementById('connect-button').addEventListener('click', connectSerial);
+    </script>
+</body>
+</html>
