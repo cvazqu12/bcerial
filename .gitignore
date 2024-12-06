@@ -1,3 +1,4 @@
-./test
-./test/secrets.py
-secrets.py
+static/secrets.py
+static/__pycache__/secrets.cpython-313.pyc
+static/__pycache__/serialapi.cpython-313.pyc
+static/__pycache__/ubersmithapi.cpython-313.pyc

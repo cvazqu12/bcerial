@@ -1,22 +1,18 @@
 import requests
 import json
-import serial
-import secrets
-import time
+from static import secrets
+
 
 #For security purposes, secrets will not be imported into GitHub. Please provide your own credentials.
 
-user = secrets.user
-token = secrets.token
+ubuser = secrets.ub_user
+ubtoken = secrets.ub_token
 
 # requesting data
-
 url = 'https://vault.evocative.com/api/2.0/?method=device.list&dev_desc='
 server = str(input("Input data here:"))
 url2 = "&require_ip=1"
-
-
-ubersmith_call = requests.get(url+server+url2, auth=(user, token))
+ubersmith_call = requests.get(url+server+url2, auth=(ubuser, ubtoken))
 
 #parsing data
 
@@ -29,14 +25,11 @@ for assignment in ubersmith_data['data'][device_id]['assignments'].values():
         ipmi_address = assignment['addr_readable']
         break
 
-print(ipmi_address)
-
 #prepping the package 
 
 split = ipmi_address.split('.')
-
-print(split)
-
 subnet = "255.255.255.0"
+gateway1 = str(split[0]+"."+split[1]+"."+split[2])
 gateway2 = ".1"
+gateway = gateway1 + gateway2
 
